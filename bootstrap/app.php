@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureInstalled;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -13,7 +14,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // 对应07文档：装完前强制走/install，装完后/install失效，见EnsureInstalled。
+        // Filament的/admin/*路由走自己的中间件栈（见AdminPanelProvider），这里只覆盖
+        // routes/web.php这类普通web路由，/admin那边另外挂了一份。
+        $middleware->web(append: [EnsureInstalled::class]);
     })
     ->withSchedule(function (Schedule $schedule): void {
         // 对应04文档全部定时任务
