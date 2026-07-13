@@ -39,7 +39,16 @@ class MessageTemplateForm
                     ->columnSpanFull()
                     ->helperText(fn (Get $get) => self::variableHelperText($get('type')))
                     ->rules([self::allowedVariablesRule()]),
-                FileUpload::make('image_url')->label('配图')->image()->directory('message-templates'),
+                // Laravel 11起默认的local磁盘根目录是storage/app/private（不对外可访问），
+                // Filament没显式指定disk时会跟着FILESYSTEM_DISK走到这个私有磁盘上，
+                // 导致生成的/storage/xxx链接404。这里配图需要能被公开访问（展示在消息里），
+                // 显式指到public磁盘（对应public/storage软链）。
+                FileUpload::make('image_url')
+                    ->label('配图')
+                    ->image()
+                    ->disk('public')
+                    ->visibility('public')
+                    ->directory('message-templates'),
                 TextInput::make('updated_by')->label('最后修改人')->disabled()->dehydrated(false),
             ]);
     }

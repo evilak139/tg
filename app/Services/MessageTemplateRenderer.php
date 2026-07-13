@@ -8,6 +8,7 @@ use App\Models\MessageTemplate;
 use App\Models\PointsLedger;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * 消息模板变量渲染，对应05文档"消息模板与变量规范"。
@@ -43,7 +44,20 @@ class MessageTemplateRenderer
 
         $text = strtr($template->content, $this->wrapKeys($variables));
 
-        return ['text' => $text, 'image_url' => $template->image_url];
+        return ['text' => $text, 'image_url' => $this->resolveImageUrl($template->image_url)];
+    }
+
+    /**
+     * FileUpload存的是public磁盘上的相对路径（如message-templates/xxx.png），
+     * 不是完整URL；Telegram的sendPhoto需要能直接抓取的绝对URL，这里转换一下。
+     */
+    protected function resolveImageUrl(?string $path): ?string
+    {
+        if (blank($path)) {
+            return null;
+        }
+
+        return Storage::disk('public')->url($path);
     }
 
     /**
