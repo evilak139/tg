@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\MessageTemplateType;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class MessageTemplate extends Model
 {
@@ -16,6 +17,11 @@ class MessageTemplate extends Model
         'image_url',
         'updated_by',
     ];
+
+    public function broadcastTasks(): HasMany
+    {
+        return $this->hasMany(BroadcastTask::class, 'template_id');
+    }
 
     protected function casts(): array
     {

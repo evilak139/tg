@@ -3,10 +3,12 @@
 namespace Tests\Feature;
 
 use App\Enums\AdminRole;
+use App\Enums\BroadcastStatus;
 use App\Enums\MessageTemplateType;
 use App\Filament\Resources\MessageTemplates\Pages\CreateMessageTemplate;
 use App\Filament\Resources\MessageTemplates\Pages\ListMessageTemplates;
 use App\Models\AdminUser;
+use App\Models\BroadcastTask;
 use App\Models\MessageTemplate;
 use Database\Seeders\MessageTemplateSeeder;
 use Filament\Actions\DeleteAction;
@@ -92,5 +94,32 @@ class MessageTemplateManagementTest extends TestCase
             ->assertTableActionHidden(DeleteAction::class, $welcome);
 
         $this->assertDatabaseHas('message_templates', ['id' => $welcome->id]);
+    }
+
+    /**
+     * 对应生产环境报过的bug：自定义模板已被群发任务引用时，直接删除会触发外键约束
+     * （broadcast_tasks.template_id 是 restrictOnDelete），报500错误。应该在删除前
+     * 拦下来给友好提示，而不是让SQL异常直接抛出。
+     */
+    public function test_custom_template_referenced_by_broadcast_task_cannot_be_deleted(): void
+    {
+        $custom = MessageTemplate::create([
+            'type' => MessageTemplateType::Custom,
+            'title' => '促销',
+            'content' => '内容',
+        ]);
+
+        BroadcastTask::create([
+            'template_id' => $custom->id,
+            'target_filter' => [],
+            'scheduled_time' => now(),
+            'status' => BroadcastStatus::Pending,
+        ]);
+
+        Livewire::test(ListMessageTemplates::class)
+            ->callTableAction(DeleteAction::class, $custom)
+            ->assertNotified();
+
+        $this->assertDatabaseHas('message_templates', ['id' => $custom->id]);
     }
 }

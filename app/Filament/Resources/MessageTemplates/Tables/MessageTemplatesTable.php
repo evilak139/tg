@@ -4,8 +4,10 @@ namespace App\Filament\Resources\MessageTemplates\Tables;
 
 use App\Enums\MessageTemplateType;
 use App\Models\MessageTemplate;
+use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -25,7 +27,20 @@ class MessageTemplatesTable
             ->recordActions([
                 EditAction::make(),
                 DeleteAction::make()
-                    ->visible(fn (MessageTemplate $record) => $record->type === MessageTemplateType::Custom),
+                    ->visible(fn (MessageTemplate $record) => $record->type === MessageTemplateType::Custom)
+                    ->before(function (MessageTemplate $record, Action $action) {
+                        if (! $record->broadcastTasks()->exists()) {
+                            return;
+                        }
+
+                        Notification::make()
+                            ->title('无法删除')
+                            ->body('该模板已被群发任务引用，无法删除，请先删除或修改对应的群发任务')
+                            ->danger()
+                            ->send();
+
+                        $action->halt();
+                    }),
             ]);
     }
 }
