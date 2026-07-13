@@ -19,7 +19,7 @@ class MessageTemplatesTable
                 TextColumn::make('type')->label('类型')->badge(),
                 TextColumn::make('title')->label('标题')->searchable(),
                 ImageColumn::make('image_url')->label('配图')->disk('public'),
-                TextColumn::make('updated_at')->label('最后更新')->dateTime()->sortable(),
+                TextColumn::make('updated_at')->label('最后更新')->dateTime('Y-m-d H:i:s')->sortable(),
                 TextColumn::make('updated_by')->label('修改人'),
             ])
             ->recordActions([

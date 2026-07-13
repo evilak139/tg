@@ -22,7 +22,7 @@ class BotsTable
                 TextColumn::make('bot_username')->label('Bot用户名')->searchable(),
                 TextColumn::make('status')->label('状态')->badge(),
                 IconColumn::make('is_active')->label('当前生效')->boolean(),
-                TextColumn::make('last_health_check_time')->label('最近健康检测')->dateTime()->sortable(),
+                TextColumn::make('last_health_check_time')->label('最近健康检测')->dateTime('Y-m-d H:i:s')->sortable(),
             ])
             ->recordActions([
                 self::deployAction(),

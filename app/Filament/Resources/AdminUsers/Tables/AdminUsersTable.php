@@ -16,7 +16,7 @@ class AdminUsersTable
             ->columns([
                 TextColumn::make('username')->label('用户名')->searchable(),
                 TextColumn::make('role')->label('角色')->badge(),
-                TextColumn::make('created_at')->label('创建时间')->dateTime()->sortable(),
+                TextColumn::make('created_at')->label('创建时间')->dateTime('Y-m-d H:i:s')->sortable(),
             ])
             ->filters([
                 //

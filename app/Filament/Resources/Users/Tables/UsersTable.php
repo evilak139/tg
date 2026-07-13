@@ -35,8 +35,8 @@ class UsersTable
                 TextColumn::make('status')->label('状态')->badge()
                     ->color(fn (UserStatus $state) => $state === UserStatus::Blacklisted ? 'danger' : 'success'),
                 TextColumn::make('checkin_streak')->label('连续签到')->numeric()->sortable(),
-                TextColumn::make('register_time')->label('注册时间')->dateTime()->sortable(),
-                TextColumn::make('last_active_time')->label('最近活跃')->dateTime()->sortable(),
+                TextColumn::make('register_time')->label('注册时间')->dateTime('Y-m-d H:i:s')->sortable(),
+                TextColumn::make('last_active_time')->label('最近活跃')->dateTime('Y-m-d H:i:s')->sortable(),
             ])
             ->defaultSort('register_time', 'desc')
             ->filters([

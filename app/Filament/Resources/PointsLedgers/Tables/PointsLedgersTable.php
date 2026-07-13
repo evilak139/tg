@@ -27,7 +27,7 @@ class PointsLedgersTable
                 TextColumn::make('balance_after')->label('变动后余额')->numeric()->sortable(),
                 TextColumn::make('relatedUser.nickname')->label('关联下级'),
                 TextColumn::make('operator')->label('操作人'),
-                TextColumn::make('created_at')->label('时间')->dateTime()->sortable(),
+                TextColumn::make('created_at')->label('时间')->dateTime('Y-m-d H:i:s')->sortable(),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([

@@ -27,8 +27,8 @@ class WithdrawRequestsTable
                 TextColumn::make('status')->label('状态')->badge(),
                 IconColumn::make('risk_flag')->label('风控标记')->boolean()
                     ->trueColor('danger')->falseColor('gray'),
-                TextColumn::make('applied_at')->label('申请时间')->dateTime()->sortable(),
-                TextColumn::make('completed_at')->label('完成时间')->dateTime()->sortable(),
+                TextColumn::make('applied_at')->label('申请时间')->dateTime('Y-m-d H:i:s')->sortable(),
+                TextColumn::make('completed_at')->label('完成时间')->dateTime('Y-m-d H:i:s')->sortable(),
                 TextColumn::make('operator')->label('操作人'),
             ])
             ->defaultSort('applied_at', 'desc')
