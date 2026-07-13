@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Enums\EnableStatus;
 use App\Enums\MessageTemplateType;
+use App\Models\Bot;
 use App\Models\Domain;
 use App\Models\MessageTemplate;
 use App\Models\User;
@@ -29,6 +30,12 @@ class MessageTemplateRendererImageUrlTest extends TestCase
         parent::setUp();
 
         Domain::create(['domain' => 'go.example.com', 'status' => EnableStatus::Enabled]);
+        Bot::create([
+            'token' => '123456:test-bot-token',
+            'bot_username' => 'test_bot',
+            'status' => EnableStatus::Enabled,
+            'is_active' => true,
+        ]);
     }
 
     public function test_render_resolves_stored_path_to_a_full_public_url(): void

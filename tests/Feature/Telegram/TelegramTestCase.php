@@ -3,6 +3,7 @@
 namespace Tests\Feature\Telegram;
 
 use App\Enums\EnableStatus;
+use App\Models\Bot;
 use App\Models\Domain;
 use Database\Seeders\MessageTemplateSeeder;
 use Database\Seeders\PointsConfigSeeder;
@@ -27,6 +28,15 @@ abstract class TelegramTestCase extends TestCase
         Domain::create([
             'domain' => 'go.example.com',
             'status' => EnableStatus::Enabled,
+        ]);
+
+        // 邀请链接暂时用Telegram原始深链（见InviteLinkService的TODO），需要一个
+        // 生效中的机器人才能拼出https://t.me/{bot}?start={id}。
+        Bot::create([
+            'token' => '123456:test-bot-token',
+            'bot_username' => 'test_bot',
+            'status' => EnableStatus::Enabled,
+            'is_active' => true,
         ]);
     }
 
