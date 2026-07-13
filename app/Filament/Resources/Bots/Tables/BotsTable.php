@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Bots\Tables;
 
 use App\Models\Bot;
+use App\Services\BotDeploymentService;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Notifications\Notification;
@@ -10,6 +11,7 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\DB;
+use RuntimeException;
 
 class BotsTable
 {
@@ -23,9 +25,30 @@ class BotsTable
                 TextColumn::make('last_health_check_time')->label('最近健康检测')->dateTime()->sortable(),
             ])
             ->recordActions([
+                self::deployAction(),
                 self::activateAction(),
                 EditAction::make(),
             ]);
+    }
+
+    /**
+     * "一键部署"：把后台配置的命令菜单说明（积分配置页面的"机器人菜单"部分）推送到
+     * Telegram，不用手动跑@BotFather，保存Token后点一下这个按钮机器人就能直接用。
+     */
+    protected static function deployAction(): Action
+    {
+        return Action::make('deploy')
+            ->label('一键部署')
+            ->icon('heroicon-o-rocket-launch')
+            ->color('primary')
+            ->action(function (Bot $record, BotDeploymentService $deployer) {
+                try {
+                    $username = $deployer->deploy($record);
+                    Notification::make()->title("部署成功：@{$username}")->success()->send();
+                } catch (RuntimeException $e) {
+                    Notification::make()->title($e->getMessage())->danger()->send();
+                }
+            });
     }
 
     /**

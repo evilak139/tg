@@ -67,6 +67,15 @@ class PointsConfigSeeder extends Seeder
             // TODO(需确认): 01文档points_config表未列出这个key，02文档"提现/兑换"要求展示
             // 客服联系方式但未给出具体值/存储位置，这里作为可配置项处理，暂定占位文案
             'customer_service_contact' => '@your_customer_service',
+
+            // 机器人前端展示文案：主菜单四个内联按钮的文字 + /start命令在Telegram命令菜单里
+            // 显示的说明，都是后台可编辑的，不写死在代码里。见MainMenu::keyboard()和
+            // BotDeploymentService（一键部署时把start_command_description推送给Telegram）。
+            'menu_button_invite' => '邀请',
+            'menu_button_checkin' => '签到',
+            'menu_button_withdraw' => '提现',
+            'menu_button_profile' => '我的',
+            'start_command_description' => '开始使用',
         ];
     }
 }
