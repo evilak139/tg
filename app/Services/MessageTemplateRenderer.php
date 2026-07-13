@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\MessageTemplateType;
+use App\Models\LeaderboardSnapshot;
 use App\Models\MessageTemplate;
 use App\Models\PointsLedger;
 use App\Models\User;
@@ -94,7 +95,7 @@ class MessageTemplateRenderer
                 '到期日期' => '-',
             ],
             MessageTemplateType::MonthlyLeaderboard => [
-                '本月邀请排行榜' => '-',
+                '本月邀请排行榜' => $this->latestLeaderboardText(),
             ],
             default => [],
         };
@@ -120,6 +121,28 @@ class MessageTemplateRenderer
         }
 
         return '已达成全部里程碑';
+    }
+
+    /**
+     * 对应04文档"6. 月度邀请排行榜结算"落地后的leaderboard_snapshot，取最近一次结算周期
+     * 渲染成榜单文案，用于04文档结算后创建的"月度排行榜"群发任务。
+     */
+    protected function latestLeaderboardText(): string
+    {
+        $latestPeriod = LeaderboardSnapshot::query()->max('period');
+
+        if ($latestPeriod === null) {
+            return '暂无排行榜数据';
+        }
+
+        $rows = LeaderboardSnapshot::query()
+            ->where('period', $latestPeriod)
+            ->with('user:id,nickname')
+            ->orderBy('rank')
+            ->get();
+
+        return $rows->map(fn (LeaderboardSnapshot $row) => "第{$row->rank}名 {$row->user->nickname} - 邀请{$row->invite_count_this_period}人"
+        )->implode("\n");
     }
 
     protected function currentMonthRankText(User $user): string

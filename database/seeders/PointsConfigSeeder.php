@@ -60,6 +60,10 @@ class PointsConfigSeeder extends Seeder
             ]),
             // TODO(需确认): 排行榜奖励覆盖前N名文档未给出，暂定前10名
             'leaderboard_top_n' => '10',
+            // TODO(需确认): 01文档points_config表没有这个key，04文档"给上榜用户按名次
+            // 发放对应奖励"没给出具体金额或名次梯度，这里暂定前N名统一奖励100分，
+            // 后续如果要按名次分档，需要改成类似milestone那样的多档配置
+            'leaderboard_reward_points' => '100',
             // TODO(需确认): 01文档points_config表未列出这个key，02文档"提现/兑换"要求展示
             // 客服联系方式但未给出具体值/存储位置，这里作为可配置项处理，暂定占位文案
             'customer_service_contact' => '@your_customer_service',

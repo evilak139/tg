@@ -98,6 +98,42 @@ class PointsService
         return $ledger;
     }
 
+    /**
+     * 对应04文档"4. 积分月度批次过期处理"：把一个已到期批次的剩余额度清零，
+     * 写入过期清零流水，扣减用户余额。
+     */
+    public function expireBatch(PointsMonthlyBatch $batch): void
+    {
+        DB::transaction(function () use ($batch) {
+            $locked = PointsMonthlyBatch::query()->lockForUpdate()->findOrFail($batch->id);
+
+            if ($locked->status !== BatchStatus::Active) {
+                return;
+            }
+
+            $remaining = $locked->points_earned_total - $locked->points_consumed_total;
+
+            if ($remaining > 0) {
+                $user = User::query()->lockForUpdate()->findOrFail($locked->user_id);
+                $balanceAfter = $user->points_balance - $remaining;
+
+                PointsLedger::create([
+                    'user_id' => $user->id,
+                    'change_type' => PointsChangeType::Expiration,
+                    'amount' => -$remaining,
+                    'balance_after' => $balanceAfter,
+                ]);
+
+                $user->update(['points_balance' => $balanceAfter]);
+            }
+
+            $locked->update([
+                'points_consumed_total' => $locked->points_earned_total,
+                'status' => BatchStatus::Expired,
+            ]);
+        });
+    }
+
     protected function addToCurrentMonthlyBatch(User $user, int $amount): void
     {
         $batchMonth = now()->format('Y-m');

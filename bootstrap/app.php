@@ -16,9 +16,13 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withSchedule(function (Schedule $schedule): void {
-        // 对应04文档"7. 群发任务队列消费"，其余定时任务（机器人/域名健康检测、
-        // 活跃度更新、积分过期、排行榜结算）留到04文档实现时再补进来。
-        $schedule->command('app:dispatch-due-broadcast-tasks')->everyMinute();
+        // 对应04文档全部定时任务
+        $schedule->command('app:dispatch-due-broadcast-tasks')->everyMinute(); // 7. 群发任务队列消费
+        $schedule->command('app:check-bot-health')->hourly(); // 1. 机器人健康检测
+        $schedule->command('app:check-domain-health')->hourly(); // 2. 域名健康检测
+        $schedule->command('app:update-activity-tags')->dailyAt('03:00'); // 3. 会员活跃度层级更新（凌晨低峰期）
+        $schedule->command('app:expire-points-batches')->dailyAt('03:30'); // 4. 积分月度批次过期处理
+        $schedule->command('app:settle-monthly-leaderboard')->monthlyOn(1, '00:30'); // 6. 月度邀请排行榜结算
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

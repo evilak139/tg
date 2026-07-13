@@ -5,12 +5,17 @@ namespace App\Models;
 use App\Enums\ActivityTag;
 use App\Enums\IdentityLevel;
 use App\Enums\UserStatus;
+use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Model
 {
+    /** @use HasFactory<UserFactory> */
+    use HasFactory;
+
     public $timestamps = false;
 
     protected $fillable = [
