@@ -14,14 +14,21 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\View\View;
 use PDO;
 use PDOException;
 use Throwable;
 
 /**
- * 对应07文档"安装流程"全部5步。用session记录已完成到第几步，跳着访问URL会被
- * 打回上一个没完成的步骤（防止绕过数据库配置直接建管理员之类的操作）。
+ * 对应07文档"安装流程"全部5步。
+ *
+ * 步骤间的先后顺序保护不用session记录（早期版本这么做过，但第2步一旦把数据库连接
+ * 切到用户刚填的新库，那个库在第3步migrate之前是没有sessions表的——SESSION_DRIVER=
+ * database时Laravel每个请求结束都要写session，装向导自己还没主动碰session就先崩了。
+ * 现在改成直接从"数据库实际处于什么状态"推导每一步是否可以访问：环境检测是否通过、
+ * mysql连接是否能连上、核心表是否已经migrate。这样不管session用的是file还是database
+ * 驱动、请求之间有没有连续性，都不影响流程判断是否正确，天然更健壮。
  */
 class InstallController extends Controller
 {
@@ -42,13 +49,9 @@ class InstallController extends Controller
 
     public function environmentContinue(): RedirectResponse
     {
-        $checks = $this->runEnvironmentChecks();
-
-        if (collect($checks)->contains(fn ($check) => ! $check['pass'])) {
+        if (! $this->environmentPassed()) {
             return back()->withErrors(['environment' => '存在未通过的必需检查项，请先解决。']);
         }
-
-        session(['install.step' => 'database']);
 
         return redirect()->route('install.database');
     }
@@ -92,11 +95,16 @@ class InstallController extends Controller
         return $checks;
     }
 
+    protected function environmentPassed(): bool
+    {
+        return collect($this->runEnvironmentChecks())->every(fn ($check) => $check['pass']);
+    }
+
     // ---------- 第2步：数据库配置 ----------
 
     public function database(): View|RedirectResponse
     {
-        if (! $this->hasCompletedStep('database')) {
+        if (! $this->environmentPassed()) {
             return redirect()->route('install.environment');
         }
 
@@ -105,7 +113,7 @@ class InstallController extends Controller
 
     public function databaseStore(Request $request, EnvFileWriter $envWriter): RedirectResponse
     {
-        if (! $this->hasCompletedStep('database')) {
+        if (! $this->environmentPassed()) {
             return redirect()->route('install.environment');
         }
 
@@ -147,8 +155,6 @@ class InstallController extends Controller
         ]);
         DB::purge('mysql');
 
-        session(['install.step' => 'migrate']);
-
         return redirect()->route('install.migrate');
     }
 
@@ -156,7 +162,7 @@ class InstallController extends Controller
 
     public function migrate(): View|RedirectResponse
     {
-        if (! $this->hasCompletedStep('migrate')) {
+        if (! $this->databaseConnected()) {
             return redirect()->route('install.database');
         }
 
@@ -165,7 +171,7 @@ class InstallController extends Controller
 
     public function migrateStore(): RedirectResponse
     {
-        if (! $this->hasCompletedStep('migrate')) {
+        if (! $this->databaseConnected()) {
             return redirect()->route('install.database');
         }
 
@@ -177,16 +183,25 @@ class InstallController extends Controller
             return back()->withErrors(['migrate' => '初始化数据库失败：'.$e->getMessage()]);
         }
 
-        session(['install.step' => 'admin']);
-
         return redirect()->route('install.admin');
+    }
+
+    protected function databaseConnected(): bool
+    {
+        try {
+            DB::connection('mysql')->getPdo();
+
+            return true;
+        } catch (Throwable) {
+            return false;
+        }
     }
 
     // ---------- 第4/5步：创建管理员 + 完成安装 ----------
 
     public function admin(): View|RedirectResponse
     {
-        if (! $this->hasCompletedStep('admin')) {
+        if (! $this->databaseMigrated()) {
             return redirect()->route('install.migrate');
         }
 
@@ -195,7 +210,7 @@ class InstallController extends Controller
 
     public function adminStore(Request $request): RedirectResponse
     {
-        if (! $this->hasCompletedStep('admin')) {
+        if (! $this->databaseMigrated()) {
             return redirect()->route('install.migrate');
         }
 
@@ -214,21 +229,17 @@ class InstallController extends Controller
         File::ensureDirectoryExists(dirname($lockPath));
         File::put($lockPath, '安装完成时间：'.now()->toDateTimeString());
 
-        session()->forget('install.step');
         Auth::guard('admin')->login($admin);
 
         return redirect('/admin');
     }
 
-    /**
-     * 简单的步骤顺序保护：session里记录的是"当前允许访问的最远步骤"，
-     * 请求某一步时只要该步骤已经被放行过（即curStep到达过这一步或之后）就算通过。
-     */
-    protected function hasCompletedStep(string $step): bool
+    protected function databaseMigrated(): bool
     {
-        $order = ['environment', 'database', 'migrate', 'admin'];
-        $current = session('install.step', 'environment');
-
-        return array_search($step, $order, true) <= array_search($current, $order, true);
+        try {
+            return Schema::connection('mysql')->hasTable('admin_users');
+        } catch (Throwable) {
+            return false;
+        }
     }
 }

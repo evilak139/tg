@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\EnsureInstalled;
+use App\Http\Middleware\UseFileSessionsUntilMigrated;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -14,6 +15,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // UseFileSessionsUntilMigrated必须在StartSession之前跑（prepend），否则sessions表
+        // 还没建好时Laravel自己保存session都会报错，见该中间件的注释。
+        $middleware->web(prepend: [UseFileSessionsUntilMigrated::class]);
+
         // 对应07文档：装完前强制走/install，装完后/install失效，见EnsureInstalled。
         // Filament的/admin/*路由走自己的中间件栈（见AdminPanelProvider），这里只覆盖
         // routes/web.php这类普通web路由，/admin那边另外挂了一份。

@@ -10,9 +10,15 @@ use Tests\TestCase;
 /**
  * 对应07文档"安装向导规格"全流程。
  *
+ * 步骤间的先后顺序保护现在是从"数据库实际处于什么状态"推导的（环境检测是否通过、
+ * mysql连接是否能连上、核心表是否已经migrate），不再依赖session记录"走到第几步"——
+ * 早期版本用session记录进度，但第2步一旦把连接切到用户刚填的新库，SESSION_DRIVER=
+ * database时Laravel保存session都会因为新库还没sessions表而报错，见
+ * UseFileSessionsUntilMigrated中间件和InstallController的注释。这些测试也因此不再
+ * 需要用withSession()伪造"已经走到第几步"，天然状态本身就是判断依据。
+ *
  * 安全注意：
- * - installed.lock 路径通过 config('install.lock_path') 注入成临时文件（见
- *   tests/TestCase.php 和 config/install.php），完全不碰真实的
+ * - installed.lock 路径通过 config('install.lock_path') 注入成临时文件，完全不碰真实的
  *   storage/app/installed.lock，测试进程崩溃也不会误锁/误解锁开发机的安装状态。
  * - .env 通过EnvFileWriter注入临时文件路径，绝不写真实的.env。
  * - 数据库配置步骤用一个独立的一次性数据库（install_wizard_test），不碰项目实际用的
@@ -20,6 +26,9 @@ use Tests\TestCase;
  * - EnvFileWriter::update()会用putenv()/$_ENV改写DB_*，这些是进程级副作用，PHPUnit
  *   同一进程内跑全部测试类，必须在tearDown里把它们还原，否则会污染同一次运行里
  *   跑在后面的其他测试的数据库连接。
+ * - phpunit.xml把DB_DATABASE整体覆盖成":memory:"（sqlite和mysql连接共用同一个
+ *   DB_DATABASE环境变量），所以测试默认状态下mysql连接天然连不上（数据库名
+ *   ":memory:"对MySQL来说不存在），这正好用来测"还没配置数据库/还没migrate"的守卫。
  */
 class InstallWizardTest extends TestCase
 {
@@ -43,6 +52,12 @@ class InstallWizardTest extends TestCase
         // 不存在的临时路径，模拟"未安装"。
         $this->notInstalledLockPath = sys_get_temp_dir().'/install_wizard_test_lock_'.uniqid();
         config(['install.lock_path' => $this->notInstalledLockPath]);
+
+        // phpunit.xml把全局SESSION_DRIVER覆盖成了array（纯内存，不碰任何表），这样测
+        // 不出线上SESSION_DRIVER=database时才会触发的"sessions表还不存在"这个bug。
+        // 这里强制改回database，真实复现生产环境的行为，UseFileSessionsUntilMigrated
+        // 中间件应该能在必要时动态切到file驱动兜住。
+        config(['session.driver' => 'database']);
 
         $this->tempEnvPath = sys_get_temp_dir().'/install_wizard_test_'.uniqid().'.env';
         File::put($this->tempEnvPath, "APP_NAME=Test\n");
@@ -100,29 +115,19 @@ class InstallWizardTest extends TestCase
         $this->get('/install/environment')->assertRedirect('/admin');
     }
 
-    public function test_cannot_skip_ahead_to_database_step_without_passing_environment_step(): void
+    public function test_cannot_skip_ahead_to_migrate_step_without_configuring_database(): void
     {
-        $this->get('/install/database')->assertRedirect('/install/environment');
-    }
-
-    public function test_cannot_skip_ahead_to_migrate_step_without_completing_database_step(): void
-    {
-        $this->withSession(['install.step' => 'database']);
-
+        // 测试环境默认mysql连接是连不上的（见类注释），天然模拟"还没配置数据库"
         $this->get('/install/migrate')->assertRedirect('/install/database');
     }
 
-    public function test_cannot_skip_ahead_to_admin_step_without_completing_migrate_step(): void
+    public function test_cannot_skip_ahead_to_admin_step_without_migrating(): void
     {
-        $this->withSession(['install.step' => 'migrate']);
-
         $this->get('/install/admin')->assertRedirect('/install/migrate');
     }
 
     public function test_database_step_rejects_invalid_credentials(): void
     {
-        $this->withSession(['install.step' => 'database']);
-
         $response = $this->post('/install/database', [
             'host' => '127.0.0.1',
             'port' => 3306,
@@ -132,17 +137,15 @@ class InstallWizardTest extends TestCase
         ]);
 
         $response->assertSessionHasErrors('connection');
-        $this->assertSame('database', session('install.step'));
     }
 
     public function test_full_wizard_happy_path(): void
     {
         // 第1步
-        $this->withSession(['install.step' => 'environment']);
         $this->post('/install/environment')->assertRedirect('/install/database');
-        $this->assertSame('database', session('install.step'));
 
-        // 第2步
+        // 第2步：这一步会把mysql连接实时切到刚配置的一次性测试库，
+        // 这里的POST请求本身就是"sessions表还不存在"时最容易触发原来那个bug的场景。
         $response = $this->post('/install/database', [
             'host' => '127.0.0.1',
             'port' => 3306,
@@ -151,12 +154,10 @@ class InstallWizardTest extends TestCase
             'password' => 'admin889',
         ]);
         $response->assertRedirect('/install/migrate');
-        $this->assertSame('migrate', session('install.step'));
         $this->assertStringContainsString('DB_DATABASE='.$this->testDatabase, File::get($this->tempEnvPath));
 
         // 第3步
         $this->post('/install/migrate')->assertRedirect('/install/admin');
-        $this->assertSame('admin', session('install.step'));
         $this->assertDatabaseHas('points_config', ['key' => 'checkin_base_points']);
         $this->assertDatabaseHas('message_templates', ['type' => '欢迎']);
 
