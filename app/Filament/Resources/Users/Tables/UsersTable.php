@@ -38,6 +38,7 @@ class UsersTable
                 TextColumn::make('register_time')->label('注册时间')->dateTime()->sortable(),
                 TextColumn::make('last_active_time')->label('最近活跃')->dateTime()->sortable(),
             ])
+            ->defaultSort('register_time', 'desc')
             ->filters([
                 SelectFilter::make('identity_level')->label('身份等级')->options(IdentityLevel::class),
                 SelectFilter::make('activity_tag')->label('活跃度层级')->options(ActivityTag::class),
