@@ -39,9 +39,9 @@ class MessageTemplateForm
             ]);
     }
 
-    protected static function variableHelperText(?string $type): string
+    protected static function variableHelperText(MessageTemplateType|string|null $type): string
     {
-        $type = MessageTemplateType::tryFrom($type ?? '');
+        $type = self::resolveType($type);
 
         if ($type === null) {
             return '可用变量：'.implode('、', array_map(fn ($v) => "{{$v}}", MessageTemplateType::commonVariables()));
@@ -56,7 +56,7 @@ class MessageTemplateForm
     {
         return function (Get $get) {
             return function (string $attribute, $value, Closure $fail) use ($get) {
-                $type = MessageTemplateType::tryFrom($get('type') ?? '');
+                $type = self::resolveType($get('type'));
 
                 if ($type === null || ! is_string($value)) {
                     return;
@@ -71,5 +71,18 @@ class MessageTemplateForm
                 }
             };
         };
+    }
+
+    /**
+     * 编辑已有记录时，Filament从模型读出的type是Eloquent enum cast之后的枚举实例；
+     * 新建/表单交互时Select组件传出来的是原始字符串。这里统一归一化，两种输入都接受。
+     */
+    protected static function resolveType(MessageTemplateType|string|null $type): ?MessageTemplateType
+    {
+        if ($type instanceof MessageTemplateType) {
+            return $type;
+        }
+
+        return MessageTemplateType::tryFrom($type ?? '');
     }
 }
