@@ -2,6 +2,7 @@
 
 /** @var Nutgram $bot */
 
+use App\Telegram\Handlers\BroadcastClickHandler;
 use App\Telegram\Handlers\CheckinMenuHandler;
 use App\Telegram\Handlers\InviteMenuHandler;
 use App\Telegram\Handlers\PointsHistoryHandler;
@@ -36,3 +37,4 @@ $bot->onCallbackQueryData('menu:withdraw', WithdrawMenuHandler::class);
 $bot->onCallbackQueryData('menu:profile', ProfileMenuHandler::class);
 $bot->onCallbackQueryData('withdraw:submit', WithdrawSubmitHandler::class);
 $bot->onCallbackQueryData('profile:ledger', PointsHistoryHandler::class);
+$bot->onCallbackQueryData('broadcast_click:{taskId}', BroadcastClickHandler::class);

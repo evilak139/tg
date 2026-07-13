@@ -5,6 +5,8 @@ namespace App\Providers;
 use App\Enums\EnableStatus;
 use App\Models\Bot;
 use App\Services\PointsConfigRepository;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 
@@ -24,6 +26,16 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->useActiveBotToken();
+        $this->configureBroadcastRateLimit();
+    }
+
+    /**
+     * 对应06/00文档："群发限速用Laravel Queue自带的RateLimited中间件卡住发送速率"，
+     * 约每秒30条到不同用户，见SendBroadcastMessageJob。
+     */
+    protected function configureBroadcastRateLimit(): void
+    {
+        RateLimiter::for('telegram-broadcast', fn () => Limit::perSecond(30));
     }
 
     /**

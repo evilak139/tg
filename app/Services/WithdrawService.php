@@ -2,10 +2,12 @@
 
 namespace App\Services;
 
+use App\Enums\PointsChangeType;
 use App\Enums\WithdrawStatus;
 use App\Models\User;
 use App\Models\WithdrawRequest;
 use InvalidArgumentException;
+use RuntimeException;
 
 /**
  * 对应02文档"提现/兑换"一节。
@@ -17,7 +19,10 @@ use InvalidArgumentException;
  */
 class WithdrawService
 {
-    public function __construct(private readonly PointsConfigRepository $config) {}
+    public function __construct(
+        private readonly PointsConfigRepository $config,
+        private readonly PointsService $pointsService,
+    ) {}
 
     public function submit(User $user): WithdrawRequest
     {
@@ -38,6 +43,25 @@ class WithdrawService
             'status' => WithdrawStatus::Pending,
             'risk_flag' => $this->isNewAccount($user),
             'applied_at' => now(),
+        ]);
+    }
+
+    /**
+     * 对应03.7文档"提现申请管理"：管理员核实客服线下兑换完成后点击"标记完成"，
+     * 按points_monthly_batches的FIFO逻辑扣减积分，写入ledger兑换扣除记录。
+     */
+    public function complete(WithdrawRequest $request, string $operator): void
+    {
+        if ($request->status !== WithdrawStatus::Pending) {
+            throw new RuntimeException('该申请不是待处理状态，不能重复标记完成');
+        }
+
+        $this->pointsService->deduct($request->user, PointsChangeType::ExchangeDeduction, $request->points_amount, $operator);
+
+        $request->update([
+            'status' => WithdrawStatus::Completed,
+            'completed_at' => now(),
+            'operator' => $operator,
         ]);
     }
 
