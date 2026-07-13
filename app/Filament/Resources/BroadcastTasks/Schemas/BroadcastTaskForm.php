@@ -6,6 +6,7 @@ use App\Enums\ActivityTag;
 use App\Enums\IdentityLevel;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TagsInput;
 use Filament\Schemas\Components\Utilities\Get;
@@ -50,10 +51,22 @@ class BroadcastTaskForm
                     ->label('用户ID列表')
                     ->helperText('填写会员在系统里的内部ID（不是Telegram ID），回车分隔')
                     ->visible(fn (Get $get) => $get('target_scope') === 'custom'),
+                Radio::make('send_mode')
+                    ->label('发送方式')
+                    ->options([
+                        'now' => '立即发送',
+                        'scheduled' => '定时发送',
+                    ])
+                    ->default('now')
+                    ->live()
+                    ->inline()
+                    ->required(),
                 DateTimePicker::make('scheduled_time')
                     ->label('定时发送时间')
-                    ->required()
-                    ->native(false),
+                    ->native(false)
+                    ->minDate(now())
+                    ->visible(fn (Get $get) => $get('send_mode') === 'scheduled')
+                    ->required(fn (Get $get) => $get('send_mode') === 'scheduled'),
             ]);
     }
 }
