@@ -1,11 +1,15 @@
 <?php
 
 use App\Http\Controllers\Install\InstallController;
+use App\Http\Controllers\ShortLinkController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
 });
+
+// 对应00文档"邀请链接形式"：{域名}/r/{短码} 302跳转到当前生效机器人。
+Route::get('/r/{shortCode}', [ShortLinkController::class, 'redirect'])->name('short-link.redirect');
 
 // 对应07文档"安装向导"：EnsureInstalled中间件保证装完之前只能访问这组路由，
 // 装完之后这组路由整体失效（重定向到/admin）。
