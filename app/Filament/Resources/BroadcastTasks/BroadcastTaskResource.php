@@ -18,7 +18,8 @@ use UnitEnum;
 
 /**
  * 对应03.6文档"群发消息系统"。任务一旦开始发送（status不再是待发送），
- * 目标名单/模板/时间就不该再改，只允许在"待发送"阶段编辑或删除。
+ * 目标名单/模板/时间就不该再改，只允许在"待发送"阶段编辑；删除不受状态限制，
+ * 任何状态的任务后台都可以删除。
  */
 class BroadcastTaskResource extends Resource
 {
@@ -49,7 +50,7 @@ class BroadcastTaskResource extends Resource
 
     public static function canDelete($record): bool
     {
-        return $record->status === BroadcastStatus::Pending;
+        return true;
     }
 
     public static function getPages(): array

@@ -91,7 +91,7 @@ class BroadcastTaskTableTest extends TestCase
         $this->assertDatabaseMissing('broadcast_tasks', ['id' => $task->id]);
     }
 
-    public function test_non_pending_task_cannot_be_deleted(): void
+    public function test_non_pending_task_can_also_be_deleted(): void
     {
         $template = $this->makeTemplate();
 
@@ -103,8 +103,8 @@ class BroadcastTaskTableTest extends TestCase
         ]);
 
         Livewire::test(ListBroadcastTasks::class)
-            ->assertTableActionHidden(DeleteAction::class, $task);
+            ->callTableAction(DeleteAction::class, $task);
 
-        $this->assertDatabaseHas('broadcast_tasks', ['id' => $task->id]);
+        $this->assertDatabaseMissing('broadcast_tasks', ['id' => $task->id]);
     }
 }

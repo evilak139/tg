@@ -34,8 +34,7 @@ class BroadcastTasksTable
             ->recordActions([
                 EditAction::make()
                     ->visible(fn (BroadcastTask $record) => $record->status === BroadcastStatus::Pending),
-                DeleteAction::make()
-                    ->visible(fn (BroadcastTask $record) => $record->status === BroadcastStatus::Pending),
+                DeleteAction::make(),
             ]);
     }
 
