@@ -14,6 +14,12 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // 管理员账号通过安装向导创建（见07文档），points_config/message_templates 默认值同样由安装向导第3步写入，不在此处 seed。
+        // 生产环境这两个 Seeder 由安装向导（07文档）第3步调用；本地开发直接跑 db:seed 也能得到同样的默认配置。
+        $this->call([
+            PointsConfigSeeder::class,
+            MessageTemplateSeeder::class,
+        ]);
+
+        // 管理员账号通过安装向导第4步创建，不在此处 seed。
     }
 }
