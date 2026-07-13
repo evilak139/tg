@@ -23,7 +23,12 @@ class MessageTemplateForm
                 Select::make('type')
                     ->label('模板类型')
                     ->options(MessageTemplateType::class)
-                    ->disabled(fn (string $operation) => $operation === 'edit')
+                    ->default(MessageTemplateType::Custom->value)
+                    ->disabled()
+                    ->dehydrated()
+                    ->helperText(fn (string $operation) => $operation === 'create'
+                        ? '新建的模板固定为"自定义"类型，仅供群发消息使用，不会被任何自动触发场景使用'
+                        : null)
                     ->required()
                     ->live(),
                 TextInput::make('title')->label('标题')->required(),

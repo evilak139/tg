@@ -38,6 +38,7 @@ class AdminPanelSmokeTest extends TestCase
             '/admin/domains',
             '/admin/domains/create',
             '/admin/message-templates',
+            '/admin/message-templates/create',
             '/admin/points-ledgers',
             '/admin/withdraw-requests',
             '/admin/broadcast-tasks',

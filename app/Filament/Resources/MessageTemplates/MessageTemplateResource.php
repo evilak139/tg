@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\MessageTemplates;
 
+use App\Enums\MessageTemplateType;
+use App\Filament\Resources\MessageTemplates\Pages\CreateMessageTemplate;
 use App\Filament\Resources\MessageTemplates\Pages\EditMessageTemplate;
 use App\Filament\Resources\MessageTemplates\Pages\ListMessageTemplates;
 use App\Filament\Resources\MessageTemplates\Schemas\MessageTemplateForm;
@@ -14,8 +16,11 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 
 /**
- * 对应03.3文档"消息模板管理"。7种类型由安装向导/Seeder预先建好，后台只允许编辑既有的，
- * 不提供新建（避免同一type出现多条记录，渲染时不知道该用哪条）。
+ * 对应03.3文档"消息模板管理"。05文档里的7种触发型模板由安装向导/Seeder预先建好，
+ * 每种type只能有一条记录（各触发点按type查`->first()`取模板，多条会导致取不确定）,
+ * 所以这7种依然只能编辑、不能新建/删除。用户希望能新增模板（主要是给"群发消息"功能
+ * 用的自定义文案），因此加了一个不挂任何自动触发点的type=自定义（Custom），
+ * 新建只允许这个type，删除也只对这个type开放。
  */
 class MessageTemplateResource extends Resource
 {
@@ -37,20 +42,16 @@ class MessageTemplateResource extends Resource
         return MessageTemplatesTable::configure($table);
     }
 
-    public static function canCreate(): bool
-    {
-        return false;
-    }
-
     public static function canDelete($record): bool
     {
-        return false;
+        return $record->type === MessageTemplateType::Custom;
     }
 
     public static function getPages(): array
     {
         return [
             'index' => ListMessageTemplates::route('/'),
+            'create' => CreateMessageTemplate::route('/create'),
             'edit' => EditMessageTemplate::route('/{record}/edit'),
         ];
     }

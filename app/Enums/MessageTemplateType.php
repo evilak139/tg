@@ -11,6 +11,7 @@ enum MessageTemplateType: string
     case Wakeup = '唤醒';
     case PointsExpiry = '积分到期提醒';
     case MonthlyLeaderboard = '月度排行榜';
+    case Custom = '自定义';
 
     /** @return string[] 通用变量，见05文档"通用变量" */
     public static function commonVariables(): array
@@ -29,7 +30,7 @@ enum MessageTemplateType: string
             self::Profile => ['身份等级'],
             self::PointsExpiry => ['到期积分数', '到期日期'],
             self::MonthlyLeaderboard => ['本月邀请排行榜'],
-            self::Welcome, self::Checkin, self::Wakeup => [],
+            self::Welcome, self::Checkin, self::Wakeup, self::Custom => [],
         };
     }
 

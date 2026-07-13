@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\MessageTemplates\Pages;
 
 use App\Filament\Resources\MessageTemplates\MessageTemplateResource;
+use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 
 class ListMessageTemplates extends ListRecords
@@ -11,6 +12,8 @@ class ListMessageTemplates extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        return [];
+        return [
+            CreateAction::make()->label('新建自定义模板'),
+        ];
     }
 }

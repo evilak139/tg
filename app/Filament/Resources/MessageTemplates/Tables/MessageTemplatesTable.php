@@ -2,6 +2,9 @@
 
 namespace App\Filament\Resources\MessageTemplates\Tables;
 
+use App\Enums\MessageTemplateType;
+use App\Models\MessageTemplate;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -21,6 +24,8 @@ class MessageTemplatesTable
             ])
             ->recordActions([
                 EditAction::make(),
+                DeleteAction::make()
+                    ->visible(fn (MessageTemplate $record) => $record->type === MessageTemplateType::Custom),
             ]);
     }
 }
