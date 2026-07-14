@@ -82,4 +82,36 @@ class MainMenuTest extends TestCase
         $this->assertFalse($labels->contains('缺链接'));
         $this->assertCount(2, $keyboard->inline_keyboard);
     }
+
+    public function test_extra_buttons_can_be_grouped_into_the_same_row(): void
+    {
+        PointsConfig::create(['key' => 'bot_extra_menu_buttons', 'value' => json_encode([
+            ['label' => '官方客服', 'url' => 'https://t.me/service'],
+            ['label' => '下载APP', 'url' => 'https://example.com/download', 'group_with_previous' => true],
+            ['label' => '开始游戏', 'url' => 'https://example.com/game', 'group_with_previous' => false],
+        ])]);
+
+        $keyboard = MainMenu::keyboard();
+        $lastTwoRows = array_slice($keyboard->inline_keyboard, -2);
+
+        $this->assertCount(2, $lastTwoRows[0]);
+        $this->assertSame('官方客服', $lastTwoRows[0][0]->text);
+        $this->assertSame('下载APP', $lastTwoRows[0][1]->text);
+
+        $this->assertCount(1, $lastTwoRows[1]);
+        $this->assertSame('开始游戏', $lastTwoRows[1][0]->text);
+    }
+
+    public function test_first_extra_button_starts_its_own_row_even_if_grouped(): void
+    {
+        PointsConfig::create(['key' => 'bot_extra_menu_buttons', 'value' => json_encode([
+            ['label' => '官方客服', 'url' => 'https://t.me/service', 'group_with_previous' => true],
+        ])]);
+
+        $keyboard = MainMenu::keyboard();
+        $lastRow = array_slice($keyboard->inline_keyboard, -1)[0];
+
+        $this->assertCount(1, $lastRow);
+        $this->assertSame('官方客服', $lastRow[0]->text);
+    }
 }

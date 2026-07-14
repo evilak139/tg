@@ -6,6 +6,7 @@ use App\Models\PointsConfig;
 use BackedEnum;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Section;
@@ -66,15 +67,16 @@ class ManageBotMenu extends Page
                     ])
                     ->columns(2),
                 Section::make('扩展菜单按钮')
-                    ->description('链接式按钮，点击直接跳转到配置的网址，显示在主菜单下方，一行一个按钮，按下方顺序从上到下排列，可自由新增、删除、拖拽排序。')
+                    ->description('链接式按钮，点击直接跳转到配置的网址，显示在主菜单下方，按下方顺序从上到下排列，可自由新增、删除、拖拽排序。默认每个按钮单独一行，把"与上一个按钮同一行显示"打开可以让它跟前一个按钮并排。')
                     ->schema([
                         Repeater::make('extra_buttons')
                             ->label('')
                             ->schema([
                                 TextInput::make('label')->label('按钮文案')->required(),
                                 TextInput::make('url')->label('跳转链接')->url()->required(),
+                                Toggle::make('group_with_previous')->label('与上一个按钮同一行显示')->default(false),
                             ])
-                            ->columns(2)
+                            ->columns(3)
                             ->addActionLabel('新增按钮')
                             ->reorderableWithButtons()
                             ->defaultItems(0),

@@ -41,6 +41,8 @@ class MainMenu
                 InlineKeyboardButton::make(text: $config->get('menu_button_profile', '我的'), callback_data: 'menu:profile'),
             );
 
+        $currentRow = [];
+
         foreach ($config->getJson('bot_extra_menu_buttons') as $button) {
             $label = trim((string) ($button['label'] ?? ''));
             $url = trim((string) ($button['url'] ?? ''));
@@ -49,7 +51,20 @@ class MainMenu
                 continue;
             }
 
-            $keyboard->addRow(InlineKeyboardButton::make(text: $label, url: $url));
+            // group_with_previous=true 时并入当前行，否则先把上一行收尾再开新行。
+            // 第一个有效按钮即使勾选了也没有"上一个"可并，自然从新行开始。
+            if (empty($button['group_with_previous']) || $currentRow === []) {
+                if ($currentRow !== []) {
+                    $keyboard->addRow(...$currentRow);
+                }
+                $currentRow = [];
+            }
+
+            $currentRow[] = InlineKeyboardButton::make(text: $label, url: $url);
+        }
+
+        if ($currentRow !== []) {
+            $keyboard->addRow(...$currentRow);
         }
 
         return $keyboard;
