@@ -47,11 +47,6 @@ class ManagePointsConfig extends Page
         'leaderboard_top_n',
         'leaderboard_reward_points',
         'customer_service_contact',
-        'menu_button_invite',
-        'menu_button_checkin',
-        'menu_button_withdraw',
-        'menu_button_profile',
-        'start_command_description',
     ];
 
     public function mount(): void
@@ -110,16 +105,6 @@ class ManagePointsConfig extends Page
                     ->schema([
                         TextInput::make('leaderboard_top_n')->label('奖励覆盖前N名')->numeric()->required(),
                         TextInput::make('leaderboard_reward_points')->label('每个上榜名次的奖励积分')->numeric()->required(),
-                    ])
-                    ->columns(2),
-                Section::make('机器人菜单')
-                    ->description('主菜单内联按钮文案 + Telegram命令菜单说明。改完在"机器人配置"页面点"一键部署"才会把命令菜单同步到Telegram，按钮文案下一次发消息就会生效。')
-                    ->schema([
-                        TextInput::make('menu_button_invite')->label('"邀请"按钮文案')->required(),
-                        TextInput::make('menu_button_checkin')->label('"签到"按钮文案')->required(),
-                        TextInput::make('menu_button_withdraw')->label('"提现"按钮文案')->required(),
-                        TextInput::make('menu_button_profile')->label('"我的"按钮文案')->required(),
-                        TextInput::make('start_command_description')->label('/start 命令说明（Telegram命令菜单里显示）')->required(),
                     ])
                     ->columns(2),
             ])

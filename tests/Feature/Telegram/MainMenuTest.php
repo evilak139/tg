@@ -42,4 +42,44 @@ class MainMenuTest extends TestCase
         $this->assertTrue($labels->contains('提现'));
         $this->assertTrue($labels->contains('我的'));
     }
+
+    public function test_extra_link_buttons_render_as_their_own_rows(): void
+    {
+        PointsConfig::create(['key' => 'bot_extra_menu_buttons', 'value' => json_encode([
+            ['label' => '官方客服', 'url' => 'https://t.me/service'],
+            ['label' => '下载APP', 'url' => 'https://example.com/download'],
+            ['label' => '进入游戏', 'url' => 'https://example.com/game'],
+        ])]);
+
+        $keyboard = MainMenu::keyboard();
+        $rows = $keyboard->inline_keyboard;
+
+        $lastThreeRows = array_slice($rows, -3);
+
+        $this->assertCount(1, $lastThreeRows[0]);
+        $this->assertSame('官方客服', $lastThreeRows[0][0]->text);
+        $this->assertSame('https://t.me/service', $lastThreeRows[0][0]->url);
+
+        $this->assertCount(1, $lastThreeRows[1]);
+        $this->assertSame('下载APP', $lastThreeRows[1][0]->text);
+
+        $this->assertCount(1, $lastThreeRows[2]);
+        $this->assertSame('进入游戏', $lastThreeRows[2][0]->text);
+        $this->assertSame('https://example.com/game', $lastThreeRows[2][0]->url);
+    }
+
+    public function test_extra_buttons_missing_label_or_url_are_skipped(): void
+    {
+        PointsConfig::create(['key' => 'bot_extra_menu_buttons', 'value' => json_encode([
+            ['label' => '', 'url' => 'https://example.com'],
+            ['label' => '缺链接', 'url' => ''],
+        ])]);
+
+        $keyboard = MainMenu::keyboard();
+
+        $labels = collect($keyboard->inline_keyboard)->flatten()->map(fn ($button) => $button->text);
+
+        $this->assertFalse($labels->contains('缺链接'));
+        $this->assertCount(2, $keyboard->inline_keyboard);
+    }
 }

@@ -69,13 +69,22 @@ class PointsConfigSeeder extends Seeder
             'customer_service_contact' => '@your_customer_service',
 
             // 机器人前端展示文案：主菜单四个内联按钮的文字 + /start命令在Telegram命令菜单里
-            // 显示的说明，都是后台可编辑的，不写死在代码里。见MainMenu::keyboard()和
-            // BotDeploymentService（一键部署时把start_command_description推送给Telegram）。
+            // 显示的说明，都是后台"机器人菜单"页面可编辑的，不写死在代码里。
+            // 见MainMenu::keyboard()、ManageBotMenu和BotDeploymentService
+            // （一键部署时把start_command_description推送给Telegram）。
             'menu_button_invite' => '邀请',
             'menu_button_checkin' => '签到',
             'menu_button_withdraw' => '提现',
             'menu_button_profile' => '我的',
             'start_command_description' => '开始使用',
+
+            // TODO(需确认): 文档未给出这三个扩展按钮的具体跳转链接，暂定占位链接，
+            // 上线前需在"机器人菜单"页面改成真实的客服/APP下载/游戏入口地址。
+            'bot_extra_menu_buttons' => json_encode([
+                ['label' => '官方客服', 'url' => 'https://t.me/your_customer_service'],
+                ['label' => '下载APP', 'url' => 'https://example.com/download'],
+                ['label' => '进入游戏', 'url' => 'https://example.com/game'],
+            ]),
         ];
     }
 }
