@@ -29,7 +29,7 @@ class CheckinMenuHandler
         $result = $this->checkinService->checkin($user);
 
         if ($result['alreadyCheckedIn']) {
-            $bot->sendMessage('今日已签到，明天再来吧～', reply_markup: MainMenu::keyboard());
+            $bot->sendMessage('Você já fez check-in hoje, volte amanhã~', reply_markup: MainMenu::keyboard());
 
             return;
         }

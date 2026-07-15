@@ -26,10 +26,12 @@ class WithdrawMenuHandler
         $exchangeAmount = $exchangeRate > 0 ? round($user->points_balance / $exchangeRate, 2) : 0;
         $contact = $this->config->get('customer_service_contact', '-');
 
-        $text = "当前积分：{$user->points_balance}\n预计可兑换：{$exchangeAmount} 元\n客服联系方式：{$contact}";
+        // TODO(需确认): exchange_rate的兑换单位文档未明确（见PointsConfigSeeder的TODO），
+        // 这里按面向巴西用户直接展示为雷亚尔(R$)，如果实际兑换目标不是货币需要再调整文案。
+        $text = "Pontos atuais: {$user->points_balance}\nValor estimado para troca: R$ {$exchangeAmount}\nContato do atendimento: {$contact}";
 
         $keyboard = MainMenu::keyboard([
-            [InlineKeyboardButton::make(text: '提交兑换申请', callback_data: 'withdraw:submit')],
+            [InlineKeyboardButton::make(text: 'Solicitar troca', callback_data: 'withdraw:submit')],
         ]);
 
         $bot->sendMessage($text, reply_markup: $keyboard);

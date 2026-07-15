@@ -30,7 +30,7 @@ class WithdrawService
         $minThreshold = $this->config->getInt('withdraw_min_threshold', 0);
 
         if ($pointsAmount < $minThreshold) {
-            throw new InvalidArgumentException("积分余额不足最低提现门槛（{$minThreshold}分）");
+            throw new InvalidArgumentException("Saldo de pontos insuficiente para o mínimo de saque ({$minThreshold} pts)");
         }
 
         $exchangeRate = $this->config->getFloat('exchange_rate', 100);

@@ -43,7 +43,7 @@ $bot->onException(function (Nutgram $bot, Throwable $exception) {
     ]);
 
     try {
-        $bot->sendMessage('服务暂时出现问题，请稍后再试。');
+        $bot->sendMessage('Ocorreu um problema temporário no serviço, tente novamente mais tarde.');
     } catch (Throwable) {
         // 兜底通知本身失败也不再往外抛，避免二次异常又走一遍这个handler。
     }
@@ -55,7 +55,7 @@ $bot->middleware(ResolveMember::class);
 // 必须单独注册一条parameterized pattern才能匹配，否则 "/start 123" 这种带邀请payload
 // 的deep link会直接匹配不到任何handler、静默丢弃。两条都指向同一个Handler，
 // payload由StartHandler自己从原始文本里解析，不依赖Nutgram的具名参数注入。
-$bot->onCommand('start', StartHandler::class)->description('开始使用');
+$bot->onCommand('start', StartHandler::class)->description('Começar a usar');
 $bot->onCommand('start {payload}', StartHandler::class);
 
 $bot->onCallbackQueryData('menu:invite', InviteMenuHandler::class);

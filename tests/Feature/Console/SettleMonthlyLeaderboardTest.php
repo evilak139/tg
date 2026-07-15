@@ -22,7 +22,7 @@ class SettleMonthlyLeaderboardTest extends TestCase
         MessageTemplate::create([
             'type' => MessageTemplateType::MonthlyLeaderboard,
             'title' => '排行榜',
-            'content' => '{ranking_convites_mes}',
+            'content' => '{本月邀请排行榜}',
         ]);
 
         $lastMonth = now()->subMonthNoOverflow();
@@ -74,7 +74,7 @@ class SettleMonthlyLeaderboardTest extends TestCase
         MessageTemplate::create([
             'type' => MessageTemplateType::MonthlyLeaderboard,
             'title' => '排行榜',
-            'content' => '{ranking_convites_mes}',
+            'content' => '{本月邀请排行榜}',
         ]);
 
         $this->artisan('app:settle-monthly-leaderboard')->assertSuccessful();

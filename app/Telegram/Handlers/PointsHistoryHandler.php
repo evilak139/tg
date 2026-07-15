@@ -32,7 +32,7 @@ class PointsHistoryHandler
             ->get();
 
         if ($entries->isEmpty()) {
-            $bot->sendMessage('暂无积分明细', reply_markup: MainMenu::keyboard());
+            $bot->sendMessage('Nenhum histórico de pontos ainda', reply_markup: MainMenu::keyboard());
 
             return;
         }
@@ -40,9 +40,9 @@ class PointsHistoryHandler
         $lines = $entries->map(function (PointsLedger $entry) {
             $sign = $entry->amount > 0 ? '+' : '';
 
-            return "{$entry->created_at->format('m-d H:i')} {$entry->change_type->value} {$sign}{$entry->amount}";
+            return "{$entry->created_at->format('m-d H:i')} {$entry->change_type->label()} {$sign}{$entry->amount}";
         });
 
-        $bot->sendMessage("最近积分明细：\n".$lines->implode("\n"), reply_markup: MainMenu::keyboard());
+        $bot->sendMessage("Histórico de pontos recente:\n".$lines->implode("\n"), reply_markup: MainMenu::keyboard());
     }
 }

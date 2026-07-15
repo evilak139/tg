@@ -31,7 +31,7 @@ class BotDeploymentService
                 throw new RuntimeException('无法通过Telegram getMe接口确认这个Token有效');
             }
 
-            $description = $this->config->get('start_command_description', '开始使用');
+            $description = $this->config->get('start_command_description', 'Começar a usar');
 
             $client->setMyCommands([
                 BotCommand::make('start', $description),

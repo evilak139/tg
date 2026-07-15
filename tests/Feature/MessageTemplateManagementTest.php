@@ -44,7 +44,7 @@ class MessageTemplateManagementTest extends TestCase
         Livewire::test(CreateMessageTemplate::class)
             ->fillForm([
                 'title' => '促销活动',
-                'content' => '{nome}，限时活动来啦！',
+                'content' => '{昵称}，限时活动来啦！',
             ])
             ->call('create')
             ->assertHasNoFormErrors();

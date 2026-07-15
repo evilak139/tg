@@ -41,6 +41,6 @@ class GlobalExceptionHandlerTest extends TelegramTestCase
 
         $this->start(5001, firstName: 'Boom');
 
-        $this->bot()->assertReplyText('服务暂时出现问题，请稍后再试。');
+        $this->bot()->assertReplyText('Ocorreu um problema temporário no serviço, tente novamente mais tarde.');
     }
 }

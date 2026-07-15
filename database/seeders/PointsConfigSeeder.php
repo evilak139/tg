@@ -72,18 +72,19 @@ class PointsConfigSeeder extends Seeder
             // 显示的说明，都是后台"机器人菜单"页面可编辑的，不写死在代码里。
             // 见MainMenu::keyboard()、ManageBotMenu和BotDeploymentService
             // （一键部署时把start_command_description推送给Telegram）。
-            'menu_button_invite' => '邀请',
-            'menu_button_checkin' => '签到',
-            'menu_button_withdraw' => '提现',
-            'menu_button_profile' => '我的',
-            'start_command_description' => '开始使用',
+            // 机器人面向巴西用户，这里的默认值直接用葡语(巴西)，管理员后台仍可自由改成任意语言。
+            'menu_button_invite' => 'Convidar',
+            'menu_button_checkin' => 'Check-in',
+            'menu_button_withdraw' => 'Sacar',
+            'menu_button_profile' => 'Meu perfil',
+            'start_command_description' => 'Começar a usar',
 
             // TODO(需确认): 文档未给出这三个扩展按钮的具体跳转链接，暂定占位链接，
             // 上线前需在"机器人菜单"页面改成真实的客服/APP下载/游戏入口地址。
             'bot_extra_menu_buttons' => json_encode([
-                ['label' => '官方客服', 'url' => 'https://t.me/your_customer_service'],
-                ['label' => '下载APP', 'url' => 'https://example.com/download'],
-                ['label' => '进入游戏', 'url' => 'https://example.com/game'],
+                ['label' => 'Atendimento oficial', 'url' => 'https://t.me/your_customer_service'],
+                ['label' => 'Baixar APP', 'url' => 'https://example.com/download'],
+                ['label' => 'Entrar no jogo', 'url' => 'https://example.com/game'],
             ]),
         ];
     }

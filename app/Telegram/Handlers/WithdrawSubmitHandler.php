@@ -28,10 +28,10 @@ class WithdrawSubmitHandler
             return;
         }
 
-        $bot->answerCallbackQuery(text: '申请已提交');
+        $bot->answerCallbackQuery(text: 'Solicitação enviada');
 
         $bot->sendMessage(
-            "已生成兑换申请（{$request->points_amount}积分，预计{$request->exchange_amount}元），请通过客服完成兑换。",
+            "Solicitação de troca gerada ({$request->points_amount} pontos, aprox. R$ {$request->exchange_amount}). Fale com o atendimento para concluir a troca.",
             reply_markup: MainMenu::keyboard(),
         );
     }

@@ -27,7 +27,7 @@ class StartHandler
         }
 
         $nickname = trim(($tgUser->first_name ?? '').' '.($tgUser->last_name ?? ''));
-        $nickname = $nickname !== '' ? $nickname : ($tgUser->username ?? "用户{$tgUser->id}");
+        $nickname = $nickname !== '' ? $nickname : ($tgUser->username ?? "Usuario{$tgUser->id}");
 
         $result = $this->registrationService->handleStart(
             tgUserId: $tgUser->id,

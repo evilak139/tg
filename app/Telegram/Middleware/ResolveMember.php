@@ -34,7 +34,7 @@ class ResolveMember
         $user = User::query()->where('tg_user_id', $tgUserId)->first();
 
         if ($user === null) {
-            $bot->sendMessage('请先发送 /start 开始使用');
+            $bot->sendMessage('Envie /start primeiro para começar a usar');
 
             return;
         }

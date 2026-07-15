@@ -50,8 +50,8 @@ class SendPointsExpiryReminderJob implements ShouldQueue
         }
 
         $rendered = $renderer->render(MessageTemplateType::PointsExpiry, $user, [
-            'pontos_a_expirar' => (string) $remaining,
-            'data_expiracao' => $batch->expire_at->format('Y-m-d'),
+            '到期积分数' => (string) $remaining,
+            '到期日期' => $batch->expire_at->format('Y-m-d'),
         ]);
 
         $bot->sendMessage($rendered['text'], chat_id: $user->tg_user_id);

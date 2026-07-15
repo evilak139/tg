@@ -37,10 +37,10 @@ class MainMenuTest extends TestCase
 
         $labels = collect($keyboard->inline_keyboard)->flatten()->map(fn ($button) => $button->text);
 
-        $this->assertTrue($labels->contains('邀请'));
-        $this->assertTrue($labels->contains('签到'));
-        $this->assertTrue($labels->contains('提现'));
-        $this->assertTrue($labels->contains('我的'));
+        $this->assertTrue($labels->contains('Convidar'));
+        $this->assertTrue($labels->contains('Check-in'));
+        $this->assertTrue($labels->contains('Sacar'));
+        $this->assertTrue($labels->contains('Meu perfil'));
     }
 
     public function test_extra_link_buttons_render_as_their_own_rows(): void

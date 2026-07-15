@@ -29,7 +29,7 @@ class MessageTemplateRenderer
     ) {}
 
     /**
-     * @param  array<string, string>  $extra  key 为不带花括号的变量名，如 ['pontos_a_expirar' => '30']
+     * @param  array<string, string>  $extra  key 为不带花括号的变量名，如 ['到期积分数' => '30']
      * @return array{text: string, image_url: ?string}
      */
     public function render(MessageTemplateType $type, User $user, array $extra = []): array
@@ -78,15 +78,15 @@ class MessageTemplateRenderer
             ->sum('amount');
 
         return [
-            'nome' => $user->nickname,
-            'ID_usuario' => (string) $user->id,
-            'pontos_atuais' => (string) $user->points_balance,
-            'link_convite' => $this->inviteLinkService->buildUrl($inviteLink),
-            'convidados_diretos' => (string) $directCount,
-            'convidados_indiretos' => (string) $indirectCount,
-            'dias_checkin_consecutivos' => (string) $user->checkin_streak,
-            'data_cadastro' => $user->register_time->format('Y-m-d H:i'),
-            'pontos_hoje' => (string) $todayPoints,
+            '昵称' => $user->nickname,
+            '用户ID' => (string) $user->id,
+            '当前积分' => (string) $user->points_balance,
+            '邀请链接' => $this->inviteLinkService->buildUrl($inviteLink),
+            '直接邀请人数' => (string) $directCount,
+            '间接邀请人数' => (string) $indirectCount,
+            '连续签到天数' => (string) $user->checkin_streak,
+            '注册时间' => $user->register_time->format('Y-m-d H:i'),
+            '今日获得积分' => (string) $todayPoints,
         ];
     }
 
@@ -97,19 +97,19 @@ class MessageTemplateRenderer
     {
         return match ($type) {
             MessageTemplateType::Invite => [
-                'valor_recompensa_convite' => $this->inviteRewardText(),
-                'progresso_meta' => $this->milestoneProgressText($user),
-                'posicao_mes' => $this->currentMonthRankText($user),
+                '邀请奖励值' => $this->inviteRewardText(),
+                '里程碑进度' => $this->milestoneProgressText($user),
+                '本月排名' => $this->currentMonthRankText($user),
             ],
             MessageTemplateType::Profile => [
-                'nivel_identidade' => $user->identity_level->value,
+                '身份等级' => $user->identity_level->label(),
             ],
             MessageTemplateType::PointsExpiry => [
-                'pontos_a_expirar' => '-',
-                'data_expiracao' => '-',
+                '到期积分数' => '-',
+                '到期日期' => '-',
             ],
             MessageTemplateType::MonthlyLeaderboard => [
-                'ranking_convites_mes' => $this->latestLeaderboardText(),
+                '本月邀请排行榜' => $this->latestLeaderboardText(),
             ],
             default => [],
         };

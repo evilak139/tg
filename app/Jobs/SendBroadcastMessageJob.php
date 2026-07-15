@@ -52,7 +52,7 @@ class SendBroadcastMessageJob implements ShouldQueue
         try {
             $rendered = $renderer->render($task->template->type, $user);
             $keyboard = InlineKeyboardMarkup::make()->addRow(
-                InlineKeyboardButton::make(text: '查看我的积分', callback_data: "broadcast_click:{$task->id}")
+                InlineKeyboardButton::make(text: 'Ver meus pontos', callback_data: "broadcast_click:{$task->id}")
             );
 
             if (filled($rendered['image_url'])) {

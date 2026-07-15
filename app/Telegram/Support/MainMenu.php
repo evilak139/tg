@@ -33,12 +33,12 @@ class MainMenu
 
         $keyboard
             ->addRow(
-                InlineKeyboardButton::make(text: $config->get('menu_button_invite', '邀请'), callback_data: 'menu:invite'),
-                InlineKeyboardButton::make(text: $config->get('menu_button_checkin', '签到'), callback_data: 'menu:checkin'),
+                InlineKeyboardButton::make(text: $config->get('menu_button_invite', 'Convidar'), callback_data: 'menu:invite'),
+                InlineKeyboardButton::make(text: $config->get('menu_button_checkin', 'Check-in'), callback_data: 'menu:checkin'),
             )
             ->addRow(
-                InlineKeyboardButton::make(text: $config->get('menu_button_withdraw', '提现'), callback_data: 'menu:withdraw'),
-                InlineKeyboardButton::make(text: $config->get('menu_button_profile', '我的'), callback_data: 'menu:profile'),
+                InlineKeyboardButton::make(text: $config->get('menu_button_withdraw', 'Sacar'), callback_data: 'menu:withdraw'),
+                InlineKeyboardButton::make(text: $config->get('menu_button_profile', 'Meu perfil'), callback_data: 'menu:profile'),
             );
 
         $currentRow = [];

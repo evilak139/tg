@@ -20,6 +20,6 @@ class BroadcastClickHandler
         /** @var User $user */
         $user = $bot->get('member');
 
-        $bot->answerCallbackQuery(text: "当前积分：{$user->points_balance}", show_alert: true);
+        $bot->answerCallbackQuery(text: "Pontos atuais: {$user->points_balance}", show_alert: true);
     }
 }

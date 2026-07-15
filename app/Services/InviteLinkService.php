@@ -43,7 +43,7 @@ class InviteLinkService
         $bot = Bot::query()->where('is_active', true)->where('status', EnableStatus::Enabled)->first();
 
         if ($bot === null) {
-            throw new RuntimeException('没有生效中的机器人，无法生成邀请链接，请先在后台"机器人配置"中启用并激活一个机器人');
+            throw new RuntimeException('Nenhum bot ativo no momento, não foi possível gerar o link de convite. Tente novamente mais tarde.');
         }
 
         return "https://t.me/{$bot->bot_username}?start={$link->user_id}";

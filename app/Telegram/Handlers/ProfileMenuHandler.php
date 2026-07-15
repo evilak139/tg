@@ -34,8 +34,8 @@ class ProfileMenuHandler
 
         $keyboard = MainMenu::keyboard([
             [
-                InlineKeyboardButton::make(text: '复制邀请链接', copy_text: CopyTextButton::make($inviteUrl)),
-                InlineKeyboardButton::make(text: '积分明细', callback_data: 'profile:ledger'),
+                InlineKeyboardButton::make(text: 'Copiar link de convite', copy_text: CopyTextButton::make($inviteUrl)),
+                InlineKeyboardButton::make(text: 'Histórico de pontos', callback_data: 'profile:ledger'),
             ],
         ]);
 
