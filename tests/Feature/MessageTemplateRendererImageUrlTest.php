@@ -45,7 +45,7 @@ class MessageTemplateRendererImageUrlTest extends TestCase
         $template = MessageTemplate::create([
             'type' => MessageTemplateType::Welcome,
             'title' => '欢迎消息',
-            'content' => '欢迎 {昵称}！',
+            'content' => '欢迎 {nome}！',
             'image_url' => 'message-templates/test.png',
         ]);
 
@@ -65,7 +65,7 @@ class MessageTemplateRendererImageUrlTest extends TestCase
         $template = MessageTemplate::create([
             'type' => MessageTemplateType::Welcome,
             'title' => '欢迎消息',
-            'content' => '欢迎 {昵称}！',
+            'content' => '欢迎 {nome}！',
             'image_url' => null,
         ]);
 

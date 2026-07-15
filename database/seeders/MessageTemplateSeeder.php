@@ -35,31 +35,31 @@ class MessageTemplateSeeder extends Seeder
         return [
             MessageTemplateType::Welcome->value => [
                 'title' => '欢迎消息',
-                'content' => "🎉 欢迎加入，{昵称}！\n你的专属邀请链接已生成，邀请好友注册并完成首次签到，你就能拿到邀请返佣：\n{邀请链接}\n\n📅 每日签到领积分，连续签到奖励更丰厚\n🎁 当前积分：{当前积分}\n\n点击下方【签到】，领取属于你的第一笔积分吧～",
+                'content' => "🎉 Bem-vindo(a), {nome}!\nSeu link de convite exclusivo já foi gerado. Convide amigos para se cadastrarem e fazerem o primeiro check-in, e você receberá sua comissão de indicação:\n{link_convite}\n\n📅 Faça check-in todo dia para ganhar pontos, quanto mais dias seguidos, maior a recompensa\n🎁 Pontos atuais: {pontos_atuais}\n\nToque em 【Check-in】abaixo e resgate seus primeiros pontos agora mesmo~",
             ],
             MessageTemplateType::Invite->value => [
                 'title' => '邀请消息',
-                'content' => "📢 分享专属链接，邀请好友一起赚积分！\n\n你的专属邀请链接：\n{邀请链接}\n\n💰 邀请奖励（好友完成首次签到后到账）：{邀请奖励值}\n👥 已邀请：直接 {直接邀请人数} 人 / 间接 {间接邀请人数} 人\n🏆 {里程碑进度}\n📊 本月邀请排名：{本月排名}\n\n小提示：好友注册后记得提醒TA签到，只有完成首次签到你才能拿到返佣哦～",
+                'content' => "📢 Compartilhe seu link exclusivo e convide amigos para ganharem pontos juntos!\n\nSeu link de convite exclusivo:\n{link_convite}\n\n💰 Recompensa de convite (creditada após o primeiro check-in do amigo): {valor_recompensa_convite}\n👥 Convidados: {convidados_diretos} direto(s) / {convidados_indiretos} indireto(s)\n🏆 {progresso_meta}\n📊 Posição no ranking deste mês: {posicao_mes}\n\nDica: depois que seu amigo se cadastrar, lembre-o de fazer o check-in — só assim você recebe a comissão~",
             ],
             MessageTemplateType::Checkin->value => [
                 'title' => '签到消息',
-                'content' => "✅ 签到成功！\n本次获得 {今日获得积分} 积分，当前积分：{当前积分}\n🔥 连续签到 {连续签到天数} 天，明天记得再来，连续天数越长奖励越丰厚！\n\n顺手邀请好友一起签到，好友签到后你还能额外拿邀请返佣：\n{邀请链接}",
+                'content' => "✅ Check-in realizado com sucesso!\nVocê ganhou {pontos_hoje} pontos desta vez, pontos atuais: {pontos_atuais}\n🔥 {dias_checkin_consecutivos} dia(s) seguidos de check-in, volte amanhã — quanto mais dias seguidos, maior a recompensa!\n\nAproveite e convide um amigo para fazer check-in junto: depois do check-in dele, você ainda ganha comissão de indicação:\n{link_convite}",
             ],
             MessageTemplateType::Profile->value => [
                 'title' => '我的消息',
-                'content' => "👤 {昵称}\n身份等级：{身份等级}\n当前积分：{当前积分}\n🔥 连续签到：{连续签到天数} 天\n👥 邀请战绩：直接 {直接邀请人数} 人 / 间接 {间接邀请人数} 人\n📅 注册时间：{注册时间}\n\n你的专属邀请链接：\n{邀请链接}\n今天签到了吗？坚持签到 + 邀请好友，积分和等级蹭蹭涨～",
+                'content' => "👤 {nome}\nNível: {nivel_identidade}\nPontos atuais: {pontos_atuais}\n🔥 Check-ins consecutivos: {dias_checkin_consecutivos} dia(s)\n👥 Convites: {convidados_diretos} direto(s) / {convidados_indiretos} indireto(s)\n📅 Cadastrado em: {data_cadastro}\n\nSeu link de convite exclusivo:\n{link_convite}\nJá fez o check-in de hoje? Continue fazendo check-in e convidando amigos para seus pontos e nível subirem rápido~",
             ],
             MessageTemplateType::Wakeup->value => [
                 'title' => '唤醒消息',
-                'content' => "{昵称}，好久不见，我们很想你～\n\n你的积分还在：{当前积分} 分，连续签到 {连续签到天数} 天的纪录别浪费了！\n回来签到即可继续领积分，积分可直接联系客服兑换好礼\n\n🎁 顺手邀请好友一起玩，好友签到后你就能拿邀请返佣：\n{邀请链接}\n\n点击下方【签到】，马上找回你的专属福利～",
+                'content' => "{nome}, há quanto tempo! Sentimos sua falta~\n\nSeus pontos continuam aí: {pontos_atuais} pts, e seu recorde de {dias_checkin_consecutivos} dia(s) seguidos de check-in não pode ser desperdiçado!\nVolte e faça check-in para continuar ganhando pontos — eles podem ser trocados diretamente com o atendimento\n\n🎁 Aproveite e convide um amigo para jogar junto: após o check-in dele, você ganha comissão de indicação:\n{link_convite}\n\nToque em 【Check-in】abaixo e resgate seus benefícios exclusivos agora~",
             ],
             MessageTemplateType::PointsExpiry->value => [
                 'title' => '积分到期提醒',
-                'content' => "⏰ {昵称}，你有 {到期积分数} 积分将于 {到期日期} 过期！\n\n当前总积分：{当前积分}\n别让辛苦攒的积分白白作废，现在就联系客服兑换，或邀请好友再攒新积分：\n{邀请链接}\n\n积分过期不补发，记得及时使用～",
+                'content' => "⏰ {nome}, você tem {pontos_a_expirar} pontos que vão expirar em {data_expiracao}!\n\nTotal de pontos atuais: {pontos_atuais}\nNão deixe seus pontos conquistados com esforço expirarem à toa — fale com o atendimento agora para trocar, ou convide amigos para ganhar mais pontos:\n{link_convite}\n\nPontos expirados não são reembolsados, use-os a tempo~",
             ],
             MessageTemplateType::MonthlyLeaderboard->value => [
                 'title' => '月度排行榜',
-                'content' => "🏆 本月邀请排行榜出炉啦！\n\n{本月邀请排行榜}\n\n恭喜上榜的小伙伴！还没上榜也别灰心，新一月排名已重新开始计算，邀请好友注册并签到，你也能登上榜首：\n{邀请链接}\n\n积分可联系客服兑换福利，邀请越多、拿的越多！",
+                'content' => "🏆 O ranking de convites deste mês saiu!\n\n{ranking_convites_mes}\n\nParabéns a quem entrou no ranking! Se ainda não entrou, não desanime — a contagem do novo mês já começou. Convide amigos para se cadastrarem e fazerem check-in, e você também pode chegar ao topo:\n{link_convite}\n\nPontos podem ser trocados com o atendimento — quanto mais você convida, mais você ganha!",
             ],
         ];
     }

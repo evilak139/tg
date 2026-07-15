@@ -29,7 +29,7 @@ class MessageTemplateRenderer
     ) {}
 
     /**
-     * @param  array<string, string>  $extra  key 为不带花括号的变量名，如 ['到期积分数' => '30']
+     * @param  array<string, string>  $extra  key 为不带花括号的变量名，如 ['pontos_a_expirar' => '30']
      * @return array{text: string, image_url: ?string}
      */
     public function render(MessageTemplateType $type, User $user, array $extra = []): array
@@ -37,7 +37,7 @@ class MessageTemplateRenderer
         $template = MessageTemplate::query()->where('type', $type)->first();
 
         if ($template === null) {
-            return ['text' => "（{$type->value}模板尚未配置）", 'image_url' => null];
+            return ['text' => "(modelo de mensagem \"{$type->value}\" ainda não configurado)", 'image_url' => null];
         }
 
         $variables = array_merge($this->commonVariables($user), $this->specificVariables($type, $user), $extra);
@@ -78,15 +78,15 @@ class MessageTemplateRenderer
             ->sum('amount');
 
         return [
-            '昵称' => $user->nickname,
-            '用户ID' => (string) $user->id,
-            '当前积分' => (string) $user->points_balance,
-            '邀请链接' => $this->inviteLinkService->buildUrl($inviteLink),
-            '直接邀请人数' => (string) $directCount,
-            '间接邀请人数' => (string) $indirectCount,
-            '连续签到天数' => (string) $user->checkin_streak,
-            '注册时间' => $user->register_time->format('Y-m-d H:i'),
-            '今日获得积分' => (string) $todayPoints,
+            'nome' => $user->nickname,
+            'ID_usuario' => (string) $user->id,
+            'pontos_atuais' => (string) $user->points_balance,
+            'link_convite' => $this->inviteLinkService->buildUrl($inviteLink),
+            'convidados_diretos' => (string) $directCount,
+            'convidados_indiretos' => (string) $indirectCount,
+            'dias_checkin_consecutivos' => (string) $user->checkin_streak,
+            'data_cadastro' => $user->register_time->format('Y-m-d H:i'),
+            'pontos_hoje' => (string) $todayPoints,
         ];
     }
 
@@ -97,19 +97,19 @@ class MessageTemplateRenderer
     {
         return match ($type) {
             MessageTemplateType::Invite => [
-                '邀请奖励值' => $this->inviteRewardText(),
-                '里程碑进度' => $this->milestoneProgressText($user),
-                '本月排名' => $this->currentMonthRankText($user),
+                'valor_recompensa_convite' => $this->inviteRewardText(),
+                'progresso_meta' => $this->milestoneProgressText($user),
+                'posicao_mes' => $this->currentMonthRankText($user),
             ],
             MessageTemplateType::Profile => [
-                '身份等级' => $user->identity_level->value,
+                'nivel_identidade' => $user->identity_level->value,
             ],
             MessageTemplateType::PointsExpiry => [
-                '到期积分数' => '-',
-                '到期日期' => '-',
+                'pontos_a_expirar' => '-',
+                'data_expiracao' => '-',
             ],
             MessageTemplateType::MonthlyLeaderboard => [
-                '本月邀请排行榜' => $this->latestLeaderboardText(),
+                'ranking_convites_mes' => $this->latestLeaderboardText(),
             ],
             default => [],
         };
@@ -121,7 +121,7 @@ class MessageTemplateRenderer
         $l2 = $this->config->getInt('invite_l2_points', 3);
         $l3 = $this->config->getInt('invite_l3_points', 1);
 
-        return "一级{$l1}分 / 二级{$l2}分 / 三级{$l3}分";
+        return "Nível 1: {$l1} pts / Nível 2: {$l2} pts / Nível 3: {$l3} pts";
     }
 
     protected function milestoneProgressText(User $user): string
@@ -130,11 +130,11 @@ class MessageTemplateRenderer
 
         foreach (self::MILESTONES as $milestone) {
             if ($directCount < $milestone) {
-                return "距下一个里程碑（{$milestone}人）还差".($milestone - $directCount).'人';
+                return 'Faltam '.($milestone - $directCount)." convite(s) para a próxima meta ({$milestone} pessoas)";
             }
         }
 
-        return '已达成全部里程碑';
+        return 'Todas as metas alcançadas';
     }
 
     /**
@@ -146,7 +146,7 @@ class MessageTemplateRenderer
         $latestPeriod = LeaderboardSnapshot::query()->max('period');
 
         if ($latestPeriod === null) {
-            return '暂无排行榜数据';
+            return 'Ainda não há dados de ranking';
         }
 
         $rows = LeaderboardSnapshot::query()
@@ -155,7 +155,7 @@ class MessageTemplateRenderer
             ->orderBy('rank')
             ->get();
 
-        return $rows->map(fn (LeaderboardSnapshot $row) => "第{$row->rank}名 {$row->user->nickname} - 邀请{$row->invite_count_this_period}人"
+        return $rows->map(fn (LeaderboardSnapshot $row) => "#{$row->rank} {$row->user->nickname} - {$row->invite_count_this_period} convite(s)"
         )->implode("\n");
     }
 
@@ -175,12 +175,12 @@ class MessageTemplateRenderer
         $myCount = (int) ($counts->firstWhere('invited_by_l1', $user->id)->cnt ?? 0);
 
         if ($myCount === 0) {
-            return '暂未上榜';
+            return 'Ainda fora do ranking';
         }
 
         $rank = $counts->filter(fn ($row) => $row->cnt > $myCount)->count() + 1;
 
-        return "第{$rank}名（本月新增邀请{$myCount}人）";
+        return "#{$rank} ({$myCount} convite(s) novo(s) este mês)";
     }
 
     /**

@@ -13,12 +13,12 @@ enum MessageTemplateType: string
     case MonthlyLeaderboard = '月度排行榜';
     case Custom = '自定义';
 
-    /** @return string[] 通用变量，见05文档"通用变量" */
+    /** @return string[] 通用变量，见05文档"通用变量"（变量名为葡语(巴西)，值仍是发给用户的正文一部分） */
     public static function commonVariables(): array
     {
         return [
-            '昵称', '用户ID', '当前积分', '邀请链接', '直接邀请人数',
-            '间接邀请人数', '连续签到天数', '注册时间', '今日获得积分',
+            'nome', 'ID_usuario', 'pontos_atuais', 'link_convite', 'convidados_diretos',
+            'convidados_indiretos', 'dias_checkin_consecutivos', 'data_cadastro', 'pontos_hoje',
         ];
     }
 
@@ -26,10 +26,10 @@ enum MessageTemplateType: string
     public function specificVariables(): array
     {
         return match ($this) {
-            self::Invite => ['邀请奖励值', '里程碑进度', '本月排名'],
-            self::Profile => ['身份等级'],
-            self::PointsExpiry => ['到期积分数', '到期日期'],
-            self::MonthlyLeaderboard => ['本月邀请排行榜'],
+            self::Invite => ['valor_recompensa_convite', 'progresso_meta', 'posicao_mes'],
+            self::Profile => ['nivel_identidade'],
+            self::PointsExpiry => ['pontos_a_expirar', 'data_expiracao'],
+            self::MonthlyLeaderboard => ['ranking_convites_mes'],
             self::Welcome, self::Checkin, self::Wakeup, self::Custom => [],
         };
     }
