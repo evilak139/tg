@@ -37,7 +37,9 @@ class MessageTemplateRenderer
         $template = MessageTemplate::query()->where('type', $type)->first();
 
         if ($template === null) {
-            return ['text' => "(modelo de mensagem \"{$type->value}\" ainda não configurado)", 'image_url' => null];
+            // 不把$type->value（枚举原始值，中文，见MessageTemplateType）拼进这句话——
+            // 那是内部标识，不应该以中文形式混进发给巴西用户的葡语提示里。
+            return ['text' => '(modelo de mensagem ainda não configurado)', 'image_url' => null];
         }
 
         $variables = array_merge($this->commonVariables($user), $this->specificVariables($type, $user), $extra);
