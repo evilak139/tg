@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Models\BroadcastTask;
 use App\Models\User;
 use App\Services\MessageTemplateRenderer;
+use App\Telegram\Support\MainMenu;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -14,13 +15,15 @@ use Illuminate\Queue\Middleware\RateLimited;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use SergiX44\Nutgram\Nutgram;
-use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardButton;
-use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardMarkup;
 use Throwable;
 
 /**
  * 单条群发消息发送，对应06/00文档"群发限速...约每秒30条到不同用户，必须走队列限速发送"。
- * 消息带一个"查看我的积分"追踪按钮，对应03.1文档"群发消息...点击率"统计需要的点击信号。
+ * 消息下方带的是与/start后主菜单一致的按钮（后台"机器人菜单"页面配置的全部按钮），
+ * 不再使用单独的"查看我的积分"追踪按钮。
+ * TODO(需确认): 去掉追踪按钮后，broadcast_tasks.click_count 不会再更新，
+ * 03.1文档仪表盘的"群发消息点击率"指标会一直是0，如果后续仍需要点击率统计，
+ * 需要另外设计追踪方式（如给主菜单按钮临时叠加统计，或恢复独立追踪按钮)。
  */
 class SendBroadcastMessageJob implements ShouldQueue
 {
@@ -51,9 +54,7 @@ class SendBroadcastMessageJob implements ShouldQueue
 
         try {
             $rendered = $renderer->render($task->template->type, $user);
-            $keyboard = InlineKeyboardMarkup::make()->addRow(
-                InlineKeyboardButton::make(text: 'Ver meus pontos', callback_data: "broadcast_click:{$task->id}")
-            );
+            $keyboard = MainMenu::keyboard();
 
             if (filled($rendered['image_url'])) {
                 $bot->sendPhoto(
